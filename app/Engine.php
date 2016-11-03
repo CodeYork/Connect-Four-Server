@@ -13,13 +13,12 @@ declare(strict_types=1);
 
 namespace CodeYork\ConnectFour;
 
-use Illuminate\Contracts\Cache\Repository;
-use Pusher;
 use CodeYork\ConnectFour\Exceptions\GameAlreadyFullException;
 use CodeYork\ConnectFour\Exceptions\GameNotFoundException;
 use CodeYork\ConnectFour\Exceptions\GameNotStartedException;
 use CodeYork\ConnectFour\Exceptions\InvalidMoveException;
 use CodeYork\ConnectFour\Exceptions\OpponentMovingException;
+use Illuminate\Contracts\Cache\Repository;
 
 final class Engine
 {

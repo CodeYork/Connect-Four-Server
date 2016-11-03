@@ -13,12 +13,10 @@ declare(strict_types=1);
 
 namespace CodeYork\Tests\ConnectFour;
 
-use GrahamCampbell\TestBenchCore\LaravelTrait;
-use GrahamCampbell\TestBenchCore\ServiceProviderTrait;
 use CodeYork\ConnectFour\AppServiceProvider;
 use CodeYork\ConnectFour\Engine;
-use CodeYork\ConnectFour\Generators\GeneratorInterface;
-use CodeYork\ConnectFour\Validators\ValidatorInterface;
+use GrahamCampbell\TestBenchCore\LaravelTrait;
+use GrahamCampbell\TestBenchCore\ServiceProviderTrait;
 
 class ServiceProviderTest extends AbstractTestCase
 {

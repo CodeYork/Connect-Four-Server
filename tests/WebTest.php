@@ -70,7 +70,7 @@ class WebTest extends AbstractTestCase
      */
     public function testCannotJoinWithBadGameId()
     {
-        $this->post("game/abc/join");
+        $this->post('game/abc/join');
 
         $this->assertResponseStatus(404);
     }
@@ -144,7 +144,7 @@ class WebTest extends AbstractTestCase
      */
     public function testCannotGetStateWithBadGameId()
     {
-        $this->get("game/abc");
+        $this->get('game/abc');
 
         $this->assertResponseStatus(404);
     }
@@ -156,7 +156,7 @@ class WebTest extends AbstractTestCase
      */
     public function testCannotMoveWithBadGameId()
     {
-        $this->post("game/abc/move?player=1&col=3");
+        $this->post('game/abc/move?player=1&col=3');
 
         $this->assertResponseStatus(404);
     }
@@ -239,7 +239,6 @@ class WebTest extends AbstractTestCase
      *
      * @expectedException \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
      * @expectedExceptionMessage Your opponent is currently moving.
-     *
      *
      * @return void
      */
