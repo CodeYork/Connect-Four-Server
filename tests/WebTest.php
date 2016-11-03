@@ -64,6 +64,18 @@ class WebTest extends AbstractTestCase
     }
 
     /**
+     * Test cannot join with a bad game id.
+     *
+     * @return void
+     */
+    public function testCannotJoinWithBadGameId()
+    {
+        $this->post("game/abc/join");
+
+        $this->assertResponseStatus(404);
+    }
+
+    /**
      * Test cannot join a game twice.
      *
      * @expectedException \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
@@ -79,6 +91,21 @@ class WebTest extends AbstractTestCase
         $this->post("game/{$game}/join");
 
         $this->seeJsonStructure(['success' => ['message'], 'data' => ['game', 'player']]);
+    }
+
+    /**
+     * Test cannot start too early.
+     *
+     * @expectedException \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
+     * @expectedExceptionMessage The given game has not started yet.
+     *
+     * @return void
+     */
+    public function testCannotStartTooEarly()
+    {
+        $game = app(Engine::class)->start()['game'];
+
+        $this->post("game/{$game}/move?player=0&col=3");
     }
 
     /**
@@ -108,6 +135,30 @@ class WebTest extends AbstractTestCase
         $this->get("game/{$game}");
 
         $this->seeJsonEquals(['data' => ['board' => $this->getEmptyBoard(), 'current' => 0, 'started' => true, 'winner' => null]]);
+    }
+
+    /**
+     * Test cannot get state with a bad game id.
+     *
+     * @return void
+     */
+    public function testCannotGetStateWithBadGameId()
+    {
+        $this->get("game/abc");
+
+        $this->assertResponseStatus(404);
+    }
+
+    /**
+     * Test cannot move with a bad game id.
+     *
+     * @return void
+     */
+    public function testCannotMoveWithBadGameId()
+    {
+        $this->post("game/abc/move?player=1&col=3");
+
+        $this->assertResponseStatus(404);
     }
 
     /**
@@ -181,6 +232,160 @@ class WebTest extends AbstractTestCase
         $board[4][4] = 1;
 
         $this->seeJsonEquals(['data' => ['board' => $board, 'current' => 0, 'started' => true, 'winner' => null]]);
+    }
+
+    /**
+     * Test can cannot make double move.
+     *
+     * @expectedException \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
+     * @expectedExceptionMessage Your opponent is currently moving.
+     *
+     *
+     * @return void
+     */
+    public function testCannotMakeDoubleMove()
+    {
+        $game = app(Engine::class)->start()['game'];
+        app(Engine::class)->join($game);
+        app(Engine::class)->move($game, 0, 2);
+
+        $this->post("game/{$game}/move?player=0&col=1");
+    }
+
+    /**
+     * Test can get state after white win.
+     *
+     * @return void
+     */
+    public function testGetStateAfterWhiteWin()
+    {
+        $game = app(Engine::class)->start()['game'];
+        app(Engine::class)->join($game);
+        app(Engine::class)->move($game, 0, 4);
+        app(Engine::class)->move($game, 1, 1);
+        app(Engine::class)->move($game, 0, 4);
+        app(Engine::class)->move($game, 1, 2);
+        app(Engine::class)->move($game, 0, 4);
+        app(Engine::class)->move($game, 1, 0);
+        app(Engine::class)->move($game, 0, 4);
+
+        $this->get("game/{$game}");
+
+        $board = $this->getEmptyBoard();
+
+        $board[5][4] = 0;
+        $board[4][4] = 0;
+        $board[3][4] = 0;
+        $board[2][4] = 0;
+        $board[5][0] = 1;
+        $board[5][1] = 1;
+        $board[5][2] = 1;
+
+        $this->seeJsonEquals(['data' => ['board' => $board, 'current' => 1, 'started' => true, 'winner' => 0]]);
+    }
+
+    /**
+     * Test can get state after black win.
+     *
+     * @return void
+     */
+    public function testGetStateAfterWhiteBlack()
+    {
+        $game = app(Engine::class)->start()['game'];
+        app(Engine::class)->join($game);
+        app(Engine::class)->move($game, 0, 5);
+        app(Engine::class)->move($game, 1, 0);
+        app(Engine::class)->move($game, 0, 5);
+        app(Engine::class)->move($game, 1, 1);
+        app(Engine::class)->move($game, 0, 0);
+        app(Engine::class)->move($game, 1, 2);
+        app(Engine::class)->move($game, 0, 1);
+        app(Engine::class)->move($game, 1, 3);
+
+        $this->get("game/{$game}");
+
+        $board = $this->getEmptyBoard();
+
+        $board[4][0] = 0;
+        $board[4][1] = 0;
+        $board[5][5] = 0;
+        $board[4][5] = 0;
+        $board[5][0] = 1;
+        $board[5][1] = 1;
+        $board[5][2] = 1;
+        $board[5][3] = 1;
+
+        $this->seeJsonEquals(['data' => ['board' => $board, 'current' => 0, 'started' => true, 'winner' => 1]]);
+    }
+
+    /**
+     * Test cannot overfill column.
+     *
+     * @expectedException \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
+     * @expectedExceptionMessage The given column is already full.
+     *
+     * @return void
+     */
+    public function testCannotOverFillColumn()
+    {
+        $game = app(Engine::class)->start()['game'];
+        app(Engine::class)->join($game);
+        app(Engine::class)->move($game, 0, 3);
+        app(Engine::class)->move($game, 1, 3);
+        app(Engine::class)->move($game, 0, 3);
+        app(Engine::class)->move($game, 1, 3);
+        app(Engine::class)->move($game, 0, 3);
+        app(Engine::class)->move($game, 1, 3);
+
+        $this->post("game/{$game}/move?player=0&col=3");
+    }
+
+    /**
+     * Test that the column must be valid.
+     *
+     * @expectedException \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
+     * @expectedExceptionMessage Invalid column index provided.
+     *
+     * @return void
+     */
+    public function testCannotProvideInvalidColumn()
+    {
+        $game = app(Engine::class)->start()['game'];
+        app(Engine::class)->join($game);
+
+        $this->post("game/{$game}/move?player=0&col=42");
+    }
+
+    /**
+     * Test that a column must be provided.
+     *
+     * @expectedException \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
+     * @expectedExceptionMessage Not all the required parameters were provided.
+     *
+     * @return void
+     */
+    public function testMustProvideColumn()
+    {
+        $game = app(Engine::class)->start()['game'];
+        app(Engine::class)->join($game);
+
+        $this->post("game/{$game}/move?player=0");
+    }
+
+    /**
+     * Test that a player id must be provided.
+     *
+     * @expectedException \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
+     * @expectedExceptionMessage Not all the required parameters were provided.
+     *
+     * @return void
+     */
+    public function testMustProvidePlayer()
+    {
+        $game = app(Engine::class)->start()['game'];
+        app(Engine::class)->join($game);
+
+        $this->post("game/{$game}/move?col=0");
     }
 
     /**
