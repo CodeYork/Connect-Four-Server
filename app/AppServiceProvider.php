@@ -22,6 +22,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use CodeYork\ConnectFour\Exceptions\GameAlreadyFullException;
 use CodeYork\ConnectFour\Exceptions\GameNotFoundException;
+use CodeYork\ConnectFour\Exceptions\GameNotStartedException;
 use CodeYork\ConnectFour\Exceptions\InvalidMoveException;
 use CodeYork\ConnectFour\Exceptions\OpponentMovingException;
 
@@ -86,6 +87,8 @@ class AppServiceProvider extends ServiceProvider
             } catch (GameNotFoundException $e) {
                 throw new NotFoundHttpException($e->getMessage());
             } catch (OpponentMovingException $e) {
+                throw new AccessDeniedHttpException($e->getMessage());
+            } catch (GameNotStartedException $e) {
                 throw new AccessDeniedHttpException($e->getMessage());
             } catch (InvalidMoveException $e) {
                 throw new BadRequestHttpException($e->getMessage());

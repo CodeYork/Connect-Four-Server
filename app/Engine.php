@@ -17,8 +17,9 @@ use Illuminate\Contracts\Cache\Repository;
 use Pusher;
 use CodeYork\ConnectFour\Exceptions\GameAlreadyFullException;
 use CodeYork\ConnectFour\Exceptions\GameNotFoundException;
+use CodeYork\ConnectFour\Exceptions\GameNotStartedException;
+use CodeYork\ConnectFour\Exceptions\InvalidMoveException;
 use CodeYork\ConnectFour\Exceptions\OpponentMovingException;
-use CodeYork\ConnectFour\Validators\ValidatorInterface;
 
 final class Engine
 {
@@ -131,7 +132,7 @@ final class Engine
         $state = State::create($data);
 
         if (!$state->hasStarted()) {
-            throw new GameNotStartedException('The given game has not started.');
+            throw new GameNotStartedException('The given game has not started yet.');
         }
 
         if ($state->getCurrentPlayer() !== $player) {
