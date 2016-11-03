@@ -191,7 +191,7 @@ final class State
     {
         $owner = $this->board[$pos[0]][$pos[1]];
 
-        for ($i = 1; $i < $len; $i++) { 
+        for ($i = 1; $i < $len; $i++) {
             if (($this->board[$pos[0] + $dir[0] * $i][$pos[1] + $dir[1] * $i] ?? null) !== $owner) {
                 return false;
             }
@@ -257,7 +257,7 @@ final class State
      */
     private function placeCounter(int $col)
     {
-        for ($row = self::HEIGHT - 1; $row >= 0; $row--) { 
+        for ($row = self::HEIGHT - 1; $row >= 0; $row--) {
             if ($this->board[$row][$col] === null) {
                 $this->board[$row][$col] = $this->current;
 

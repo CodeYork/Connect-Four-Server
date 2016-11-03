@@ -13,18 +13,17 @@ declare(strict_types=1);
 
 namespace CodeYork\ConnectFour;
 
-use Illuminate\Contracts\Container\Container;
+use CodeYork\ConnectFour\Exceptions\GameAlreadyFullException;
+use CodeYork\ConnectFour\Exceptions\GameNotFoundException;
+use CodeYork\ConnectFour\Exceptions\GameNotStartedException;
+use CodeYork\ConnectFour\Exceptions\InvalidMoveException;
+use CodeYork\ConnectFour\Exceptions\OpponentMovingException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use CodeYork\ConnectFour\Exceptions\GameAlreadyFullException;
-use CodeYork\ConnectFour\Exceptions\GameNotFoundException;
-use CodeYork\ConnectFour\Exceptions\GameNotStartedException;
-use CodeYork\ConnectFour\Exceptions\InvalidMoveException;
-use CodeYork\ConnectFour\Exceptions\OpponentMovingException;
 
 class AppServiceProvider extends ServiceProvider
 {
